@@ -1,8 +1,10 @@
 import { NextFunction, Request, Response, Router } from "express";
 
 import { multerUpload } from "../../config/multer.config";
+import { validateRequest } from "../../middlewares";
 import { catchAsync } from "../../utils";
 import { authController } from "./auth.controller";
+import { authValidationSchema } from "./auth.validation";
 
 const authRoutes: Router = Router();
 
@@ -25,13 +27,13 @@ authRoutes.post(
 
     next();
   }),
-  // validateRequest(authValidationSchema.register),
+  validateRequest(authValidationSchema.register),
   authController.register,
 );
 
 authRoutes.post(
   "/login",
-  // validateRequest(authValidationSchema.login),
+  validateRequest(authValidationSchema.login),
   authController.login,
 );
 
