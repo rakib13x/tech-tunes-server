@@ -39,7 +39,37 @@ const fetchCategories = async (queryParams: Record<string, unknown>) => {
   return { categories, metaData };
 };
 
+// Service to get a specific category by ID
+const getCategoryById = async (categoryId: string) => {
+  const category = await CategoryModel.findById(categoryId);
+  if (!category) {
+    throw new AppError(httpStatus.NOT_FOUND, "Category not found.");
+  }
+
+  return category;
+};
+
+// Service to soft-delete a category (mark as deleted)
+const softDeleteCategory = async (categoryId: string) => {
+  const updatedCategory = await CategoryModel.findByIdAndUpdate(
+    categoryId,
+    { isDeleted: true },
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+
+  if (!updatedCategory) {
+    throw new AppError(httpStatus.NOT_FOUND, "Category not found.");
+  }
+
+  return updatedCategory;
+};
+
 export const categoryService = {
   addCategory,
   fetchCategories,
+  getCategoryById,
+  softDeleteCategory,
 };
