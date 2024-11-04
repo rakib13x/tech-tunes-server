@@ -340,4 +340,7 @@ export const authService = {
   login,
   getMe,
   changePassword,
+  forgetPassword,
+  resetPassword,
+  generateNewAccessToken,
 };

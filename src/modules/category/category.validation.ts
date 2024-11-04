@@ -1,6 +1,5 @@
 import { z } from "zod";
 
-// Validation for creating a category
 const createCategorySchema = z.object({
   body: z
     .object({

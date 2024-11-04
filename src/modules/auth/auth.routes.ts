@@ -1,7 +1,8 @@
 import { NextFunction, Request, Response, Router } from "express";
 
 import { multerUpload } from "../../config/multer.config";
-import { validateRequest } from "../../middlewares";
+import { USER_ROLE } from "../../constant";
+import { auth, validateRequest } from "../../middlewares";
 import { catchAsync } from "../../utils";
 import { authController } from "./auth.controller";
 import { authValidationSchema } from "./auth.validation";
@@ -35,6 +36,36 @@ authRoutes.post(
   "/login",
   validateRequest(authValidationSchema.login),
   authController.login,
+);
+
+// authRoutes.post(
+//   "/social-login",
+//   validateRequest(authValidationSchema.socialLogin),
+//   authController.socialLogin,
+// );
+authRoutes.get(
+  "/me",
+  auth(USER_ROLE.USER, USER_ROLE.ADMIN),
+  authController.getMe,
+);
+
+authRoutes.put(
+  "/change-password",
+  auth(USER_ROLE.USER, USER_ROLE.ADMIN),
+  validateRequest(authValidationSchema.changePassword),
+  authController.changePassword,
+);
+
+authRoutes.post(
+  "/forget-password",
+  validateRequest(authValidationSchema.forgetPassword),
+  authController.forgetPassword,
+);
+
+authRoutes.post(
+  "/reset-password",
+  validateRequest(authValidationSchema.resetPassword),
+  authController.resetPassword,
 );
 
 export default authRoutes;

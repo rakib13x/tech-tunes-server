@@ -30,7 +30,37 @@ const fetchAllCategoriesHandler = catchAsync(
   },
 );
 
+// Handler to get details of a specific category
+const fetchCategoryByIdHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const category = await categoryService.getCategoryById(req.params.id);
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Category fetched successfully.",
+      data: category,
+    });
+  },
+);
+
+// Handler to mark a category as deleted (soft delete)
+const removeCategoryHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    const deletedCategory = await categoryService.softDeleteCategory(
+      req.params.id,
+    );
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Category successfully removed.",
+      data: deletedCategory,
+    });
+  },
+);
+
 export const categoryController = {
   createCategoryHandler,
   fetchAllCategoriesHandler,
+  fetchCategoryByIdHandler,
+  removeCategoryHandler,
 };

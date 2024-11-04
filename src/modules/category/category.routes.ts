@@ -17,7 +17,7 @@ router
 
 router
   .route("/:id")
-  .get(categoryController.fetchCategoryByIdHandler) // Fetch a category by ID
-  .delete(categoryController.removeCategoryHandler); // Soft delete a category
+  .get(categoryController.fetchCategoryByIdHandler)
+  .delete(categoryController.removeCategoryHandler);
 
 export default router;
