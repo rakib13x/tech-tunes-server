@@ -237,7 +237,21 @@ const paymentCancelled = async (transactionId: string) => {
     throw err;
   }
 };
+// get payment information by transaction id
+const getPaymentInfo = async (transactionId: string) => {
+  const payment = await Payment.findOne({ transactionId })
+    .populate("user")
+    .populate("subscription");
+
+  if (!payment) {
+    throw new AppError(httpStatus.NOT_FOUND, "Payment not found");
+  }
+  return payment;
+};
 
 export const paymentService = {
   paymentConfirmation,
+  paymentCancelled,
+  paymentFailed,
+  getPaymentInfo
 };

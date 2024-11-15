@@ -1,5 +1,6 @@
+import httpStatus from "http-status";
 import config from "../../config";
-import { catchAsync } from "../../utils";
+import { catchAsync, sendResponse } from "../../utils";
 import { paymentService } from "./payment.service";
 
 const paymentConfirmation = catchAsync(async (req, res) => {
@@ -51,8 +52,23 @@ const paymentCancelled = catchAsync(async (req, res) => {
     );
 });
 
+// get payment info by transaction id
+const getPaymentInfo = catchAsync(async (req, res) => {
+  const { transactionId } = req.params;
+  const result = await paymentService.getPaymentInfo(transactionId);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Payment information retrieved successfully",
+    data: result,
+  });
+});
+
+
 export const paymentController = {
   paymentConfirmation,
   paymentFailed,
   paymentCancelled,
+  getPaymentInfo
 };

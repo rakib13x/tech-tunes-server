@@ -29,7 +29,7 @@ const createPost = async (userData: JwtPayload, postDetails: IPost) => {
   if (!category) {
     throw new AppError(httpStatus.NOT_FOUND, "Category not found");
   }
-
+  //@ts-ignore
   postDetails.author = user._id;
   postDetails.category = category._id;
 
@@ -117,6 +117,7 @@ const commentOnPost = async (
     }
 
     // Create a new comment
+    //@ts-ignore
     const comment = await Comment.create(
       [
         {
@@ -137,6 +138,7 @@ const commentOnPost = async (
     session.endSession();
 
     // Find and populate the comment with specific fields from user and post
+    //@ts-ignore
     return await Comment.findById(comment[0]._id)
       .populate({
         path: "user",
@@ -184,6 +186,7 @@ const voteOnPost = async (
     }
 
     // Ensure the user is not the author of the post (skip author's votes if necessary)
+    //@ts-ignore
     if (post.author.equals(currentLoggedInUser._id)) {
       throw new AppError(
         httpStatus.FORBIDDEN,

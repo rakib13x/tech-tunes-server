@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response, Router } from "express";
 import { multerUpload } from "../../config/multer.config";
 import { USER_ROLE } from "../../constant";
-import { validateRequest } from "../../middlewares";
+import { auth, validateRequest } from "../../middlewares";
 import { postController } from "./post.controller";
 import { postValidationSchema } from "./post.validation";
 
@@ -9,7 +9,7 @@ const postRouter: Router = Router();
 
 postRouter.post(
   "/create",
-  authMiddleware(USER_ROLE.USER, USER_ROLE.ADMIN),
+  auth(USER_ROLE.USER, USER_ROLE.ADMIN),
   multerUpload.single("image"),
   (req: Request, _res: Response, next: NextFunction) => {
     if (req.file?.path) {
@@ -27,16 +27,18 @@ postRouter.post(
 
 postRouter.get("/list", postController.getPosts);
 
+// vote on post
+postRouter.put(
+    "/:id/vote",
+    auth(USER_ROLE.USER, USER_ROLE.ADMIN),
+    postController.voteOnPost,
+  );
+  
+  // vote status
+  postRouter.get(
+    "/:id/vote-status",
+    auth(USER_ROLE.USER),
+    postController.getVoteStatus,
+  );
+
 export default postRouter;
-function authMiddleware(
-  USER: any,
-  ADMIN: any,
-): import("express-serve-static-core").RequestHandler<
-  import("express-serve-static-core").ParamsDictionary,
-  any,
-  any,
-  import("qs").ParsedQs,
-  Record<string, any>
-> {
-  throw new Error("Function not implemented.");
-}
