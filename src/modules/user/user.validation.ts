@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { UserGender } from "./user.constant";
+import { SocialPlatform, UserGender } from "./user.constant";
 
 const updateProfile = z.object({
   body: z
@@ -56,6 +56,37 @@ const updateProfile = z.object({
     .strict(),
 });
 
+const socialLinkSchema = z
+  .object({
+    platform: z.enum([...SocialPlatform] as [string, ...string[]], {
+      required_error: "Social Platform is required",
+      invalid_type_error: "Social Platform must be string",
+    }),
+    url: z.string().url("Invalid URL"),
+  })
+  .optional();
+
+const updateSocialLinks = z.object({
+  body: z
+    .object({
+      socialLinks: z
+        .array(socialLinkSchema)
+        .min(1, "At least one social link is required")
+        .max(6, "No more than 6 social links are allowed")
+        .refine(
+          (socialLinks) => {
+            const platforms = socialLinks.map((link) => link?.platform);
+            return new Set(platforms).size === platforms.length;
+          },
+          {
+            message: "Social platforms must be unique",
+          },
+        )
+        .optional(),
+    })
+    .strict(),
+});
 export const userValidationSchema = {
   updateProfile,
+  updateSocialLinks
 };

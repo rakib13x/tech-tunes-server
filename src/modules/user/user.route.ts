@@ -38,4 +38,30 @@ userRouter.patch(
   validateRequest(userValidationSchema.updateProfile),
   userController.updateProfile,
 );
+
+
+// update user profile social links
+userRouter.put(
+  "/profile/update-social-links",
+  auth(USER_ROLE.USER, USER_ROLE.ADMIN),
+  validateRequest(userValidationSchema.updateSocialLinks),
+  userController.updateSocialLinks,
+);
+
+// block user (admin only)
+userRouter.patch("/:id/block", auth(USER_ROLE.ADMIN), userController.blockUser);
+
+// unblock user (admin only)
+userRouter.patch(
+  "/:id/unblock",
+  auth(USER_ROLE.ADMIN),
+  userController.unBlockUser,
+);
+
+// make a user to admin (admin only)
+userRouter.patch(
+  "/:id/make-admin",
+  auth(USER_ROLE.ADMIN),
+  userController.makeAdmin,
+);
 export default userRouter;

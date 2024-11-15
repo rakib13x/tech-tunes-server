@@ -4,8 +4,9 @@ import mongoose from "mongoose";
 import { QueryBuilder } from "../../builder";
 import { AppError } from "../../errors";
 import Follower from "../follower/follower.model";
-import { IUser } from "./user.interface";
+import { IUser, TSocialLink } from "./user.interface";
 import User from "./user.model";
+import { USER_ROLE, USER_STATUS } from "../../constant";
 
 // get all users
 const getAllUsers = async (query: Record<string, unknown>) => {
@@ -78,7 +79,7 @@ const followUser = async (userData: JwtPayload, userIdToFollow: string) => {
     }
 
     // Prevent self-following
-    if (currentLoggedInUser._id.equals(userToFollow._id)) {
+    if (currentLoggedInUser?._id.equals(userToFollow._id)) {
       throw new AppError(httpStatus.BAD_REQUEST, "You cannot follow yourself");
     }
 
@@ -150,7 +151,7 @@ const unfollowUser = async (userData: JwtPayload, userIdToUnfollow: string) => {
     }
 
     // Prevent self-unfollowing
-    if (currentLoggedInUser._id.equals(userToUnfollow._id)) {
+    if (currentLoggedInUser?._id.equals(userToUnfollow._id)) {
       throw new AppError(
         httpStatus.BAD_REQUEST,
         "You cannot unfollow yourself",
@@ -195,10 +196,98 @@ const unfollowUser = async (userData: JwtPayload, userIdToUnfollow: string) => {
   }
 };
 
+
+// update user profile social links
+const updateSocialLinks = async (
+  userData: JwtPayload,
+  payload: TSocialLink[],
+) => {
+  const updatedUser = await User.findOneAndUpdate(
+    { email: userData.email },
+    payload,
+    {
+      new: true,
+      runValidators: true,
+    },
+  );
+
+  if (!updatedUser) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  return updatedUser;
+};
+
+// block a user (admin only)
+const blockUser = async (id: string) => {
+  const user = await User.findById(id);
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  if (user.status === USER_STATUS.BLOCKED) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User is already Blocked");
+  }
+
+  return await User.findByIdAndUpdate(
+    id,
+    { status: USER_STATUS.BLOCKED },
+    { new: true, runValidators: true },
+  );
+};
+
+// unblock a user (admin only)
+const unBlockUser = async (id: string) => {
+  const user = await User.findById(id);
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  if (user.status === USER_STATUS.ACTIVE) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User is already Active");
+  }
+
+  return await User.findByIdAndUpdate(
+    id,
+    { status: USER_STATUS.ACTIVE },
+    { new: true, runValidators: true },
+  );
+};
+
+// make a user to admin (admin only)
+const makeAdmin = async (id: string) => {
+  const user = await User.findById(id);
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  if (user.isDeleted) {
+    throw new AppError(httpStatus.FORBIDDEN, "User is already deleted");
+  }
+
+  if (user.status === USER_STATUS.BLOCKED) {
+    throw new AppError(httpStatus.FORBIDDEN, "User is blocked");
+  }
+
+  if (user.role === USER_ROLE.ADMIN) {
+    throw new AppError(httpStatus.BAD_REQUEST, "User is already an admin");
+  }
+
+  return await User.findByIdAndUpdate(
+    id,
+    { role: USER_ROLE.ADMIN },
+    { new: true, runValidators: true },
+  );
+};
+
 export const userService = {
   getAllUsers,
   getSingleUserByUsername,
   updateProfile,
   followUser,
   unfollowUser,
+  updateSocialLinks,
+  blockUser,
+  unBlockUser,
+  makeAdmin
 };

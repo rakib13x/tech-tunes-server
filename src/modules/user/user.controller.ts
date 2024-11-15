@@ -63,10 +63,67 @@ const unfollowUser = catchAsync(async (req, res) => {
   });
 });
 
+// update user profile social links
+const updateSocialLinks = catchAsync(async (req, res) => {
+  const result = await userService.updateSocialLinks(req.user, req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "User social links updated successfully",
+    data: result,
+  });
+});
+
+// block user (only admin)
+const blockUser = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  const result = await userService.blockUser(id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "User blocked successfully",
+    data: result,
+  });
+});
+
+// unblock user (only admin)
+const unBlockUser = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  const result = await userService.unBlockUser(id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "User unblock successfully",
+    data: result,
+  });
+});
+
+// make a user to admin (admin only)
+const makeAdmin = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  const result = await userService.makeAdmin(id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "User role updated successfully: User is now an Admin.",
+    data: result,
+  });
+});
 export const userController = {
   getAllUsers,
   getSingleUserByUsername,
   updateProfile,
   followUser,
   unfollowUser,
+  makeAdmin,
+  unBlockUser,
+  blockUser,
+  updateSocialLinks
 };
