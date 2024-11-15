@@ -66,9 +66,24 @@ const getPaymentInfo = catchAsync(async (req, res) => {
 });
 
 
+// get all payments (admin only)
+const getAllPayments = catchAsync(async (req, res) => {
+  const { result, meta } = await paymentService.getAllPayments(req.query);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Payments retrieved successfully",
+    meta,
+    data: result,
+  });
+});
+
+
 export const paymentController = {
   paymentConfirmation,
   paymentFailed,
   paymentCancelled,
-  getPaymentInfo
+  getPaymentInfo,
+  getAllPayments
 };

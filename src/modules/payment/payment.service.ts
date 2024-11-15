@@ -7,6 +7,7 @@ import User from "../user/user.model";
 import { PAYMENT_STATUS } from "./payment.constant";
 import Payment from "./payment.model";
 import { verifyPayment } from "./payment.utils";
+import { QueryBuilder } from "../../builder";
 
 const paymentConfirmation = async (transactionId: string) => {
   const existingPayment = await Payment.findOne({ transactionId });
@@ -249,9 +250,30 @@ const getPaymentInfo = async (transactionId: string) => {
   return payment;
 };
 
+
+// get all payments (admin only)
+const getAllPayments = async (query: Record<string, unknown>) => {
+  const paymentQuery = new QueryBuilder(
+    Payment.find({}).populate("user").populate("subscription"),
+    query,
+  );
+
+  // Await the filter() method
+  await paymentQuery.filter();
+
+  // Now you can safely call sort, paginate, and fields
+  paymentQuery.sort().paginate().fields();
+
+  const result = await paymentQuery.modelQuery;
+  const meta = await paymentQuery.countTotal();
+
+  return { result, meta };
+};
+
 export const paymentService = {
   paymentConfirmation,
   paymentCancelled,
   paymentFailed,
-  getPaymentInfo
+  getPaymentInfo,
+  getAllPayments
 };
