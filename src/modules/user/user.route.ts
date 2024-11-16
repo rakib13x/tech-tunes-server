@@ -39,7 +39,6 @@ userRouter.patch(
   userController.updateProfile,
 );
 
-
 // update user profile social links
 userRouter.put(
   "/profile/update-social-links",
@@ -64,4 +63,49 @@ userRouter.patch(
   auth(USER_ROLE.ADMIN),
   userController.makeAdmin,
 );
+
+// delete user account (admin only)
+userRouter.delete(
+  "/:id",
+  auth(USER_ROLE.ADMIN),
+  userController.deleteUserAccount,
+);
+
+// follow a user (id: indicates that the user wanted to follow)
+userRouter.put("/:id/follow", auth(USER_ROLE.USER), userController.followUser);
+
+// unfollow a user (id: indicates that the user wanted to unfollow)
+userRouter.delete(
+  "/:id/unfollow",
+  auth(USER_ROLE.USER),
+  userController.unfollowUser,
+);
+
+// check the follow status
+userRouter.get(
+  "/:id/follow-status",
+  auth(USER_ROLE.USER),
+  userController.getFollowStatus,
+);
+
+// get current logged is user followers
+userRouter.get(
+  "/my-followers",
+  auth(USER_ROLE.USER),
+  userController.getLoggedInUserFollowers,
+);
+
+// get current logged is user following
+userRouter.get(
+  "/my-following",
+  auth(USER_ROLE.USER),
+  userController.getLoggedInUserFollowing,
+);
+
+// get all followers by user id
+userRouter.get("/:id/followers", userController.getFollowersByUserId);
+
+// get all following by user id
+userRouter.get("/:id/following", userController.getFollowingByUserId);
+
 export default userRouter;
