@@ -1,12 +1,12 @@
 import { Document, Types } from "mongoose";
 
-export type ContentTypeEnum = "html" | "markdown" | "text";
+export type TContentType = "html" | "markdown" | "text";
 
 export interface IPost extends Document {
   author: Types.ObjectId;
   title: string;
   slug: string;
-  contentType: ContentTypeEnum;
+  contentType: TContentType;
   content: string;
   coverImage: string;
   images: string[];

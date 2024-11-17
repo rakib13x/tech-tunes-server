@@ -1,4 +1,5 @@
-import { ContentTypeEnum } from "./post.interface";
+import { TContentType } from "./post.interface";
 
-export const PostContentTypes: ContentTypeEnum[] = ["html", "markdown", "text"];
-export const searchablePostFields = ["title", "slug", "content"];
+
+export const PostContentType: TContentType[] = ["html", "markdown", "text"];
+export const postSearchableFields = ["title", "slug", "content"];

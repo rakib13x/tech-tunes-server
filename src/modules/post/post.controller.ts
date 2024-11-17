@@ -1,42 +1,91 @@
-import { Request, Response } from "express";
 import httpStatus from "http-status";
 import { catchAsync, sendResponse } from "../../utils";
 import { postService } from "./post.service";
 
-const createPost = catchAsync(async (req: Request, res: Response) => {
-  const postData = await postService.createPost(req.user, req.body);
+const create = catchAsync(async (req, res) => {
+  const result = await postService.create(req.user, req.body);
 
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.CREATED,
-    message: "Post successfully created",
-    data: postData,
-  });
-});
-
-const getPosts = catchAsync(async (req: Request, res: Response) => {
-  const { meta, posts } = await postService.fetchPosts(req.query);
-
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.OK,
-    message: "Posts fetched successfully",
-    meta,
-    data: posts,
-  });
-});
-const commentOnPost = catchAsync(async (req, res) => {
-  const { id } = req.params;
-  const result = await postService.commentOnPost(req.user, id, req.body);
-
-  sendResponse(res, {
-    success: true,
-    statusCode: httpStatus.CREATED,
-    message: "Add comment successfully",
+    message: "Post created successfully",
     data: result,
   });
 });
 
+const getAll = catchAsync(async (req, res) => {
+  const { meta, result } = await postService.getAll(req.query);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Posts retrieved successfully",
+    meta,
+    data: result,
+  });
+});
+
+// get following users posts
+const getFollowingUsersPosts = catchAsync(async (req, res) => {
+  const { result, meta } = await postService.getFollowingUsersPosts(
+    req.user,
+    req.query,
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Posts retrieved successfully",
+    meta,
+    data: result,
+  });
+});
+
+const getLoggedInUserPosts = catchAsync(async (req, res) => {
+  const { meta, result } = await postService.getLoggedInUserPosts(
+    req.user,
+    req.query,
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Posts retrieved successfully",
+    meta,
+    data: result,
+  });
+});
+
+// get access free blog post if premium then pass to next controller / middleware
+const getFreeSinglePost = catchAsync(async (req, res, next) => {
+  const { slug } = req.params;
+  const post = await postService.getPostByProperty("slug", slug);
+
+  if (!post.isPremium) {
+    return sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Post retrieved successfully",
+      data: post,
+    });
+  }
+
+  next();
+});
+
+const getPremiumSinglePost = catchAsync(async (req, res) => {
+  const { slug } = req.params;
+  const result = await postService.getPremiumSinglePost(req.user, slug);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Post retrieved successfully",
+    data: result,
+  });
+});
+
+// vote
 const voteOnPost = catchAsync(async (req, res) => {
   const { id } = req.params;
   const { voteType } = req.query;
@@ -68,10 +117,126 @@ const getVoteStatus = catchAsync(async (req, res) => {
   });
 });
 
+// comment on post
+const commentOnPost = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const result = await postService.commentOnPost(req.user, id, req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "Add comment successfully",
+    data: result,
+  });
+});
+
+// get all comments by post id
+const getAllCommentsByPostId = catchAsync(async (req, res) => {
+  const { id } = req.params;
+  const { result, meta } = await postService.getAllCommentsByPostId(
+    id,
+    req.query,
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Comments retrieved successfully",
+    meta,
+    data: result,
+  });
+});
+
+// get all posts by user id
+const getAllPostsByUserId = catchAsync(async (req, res) => {
+  const { userId } = req.params;
+  const { result, meta } = await postService.getAllPostsByUserId(
+    userId,
+    req.query,
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Posts retrieved successfully",
+    meta,
+    data: result,
+  });
+});
+
+// delete a post by admin using admin
+const deletePostByAdminUsingId = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  const result = await postService.deletePostByAdminUsingId(id, req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Post deleted successfully",
+    data: result,
+  });
+});
+
+// delete post by user using post id
+const deletePostByUserUsingId = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  const result = await postService.deletePostByUserUsingId(req.user, id);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Post deleted successfully",
+    data: result,
+  });
+});
+
+// update post by user using post id
+const updatePostByUserUsingId = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  const result = await postService.updatePostByUserUsingId(
+    req.user,
+    id,
+    req.body,
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Post updated successfully",
+    data: result,
+  });
+});
+
+const updatePostByAdmin = catchAsync(async (req, res) => {
+  const { id } = req.params;
+
+  const result = await postService.updatePostByAdmin(id, req.body);
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Post updated successfully",
+    data: result,
+  });
+});
+
 export const postController = {
-  createPost,
-  getPosts,
-  commentOnPost,
+  create,
+  getAll,
+  getLoggedInUserPosts,
+  getFreeSinglePost,
+  getPremiumSinglePost,
   voteOnPost,
+  commentOnPost,
+  getAllCommentsByPostId,
+  getAllPostsByUserId,
   getVoteStatus,
+  getFollowingUsersPosts,
+  deletePostByAdminUsingId,
+  deletePostByUserUsingId,
+  updatePostByUserUsingId,
+  updatePostByAdmin,
 };
