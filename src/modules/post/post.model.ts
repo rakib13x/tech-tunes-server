@@ -1,7 +1,8 @@
 import { model, Schema } from "mongoose";
 
-import { PostContentTypes } from "./post.constant";
+
 import { IPost } from "./post.interface";
+import { PostContentType } from "./post.constant";
 
 const postSchema = new Schema<IPost>(
   {
@@ -25,7 +26,7 @@ const postSchema = new Schema<IPost>(
     contentType: {
       type: String,
       enum: {
-        values: PostContentTypes,
+        values: PostContentType,
         message: "{VALUE} is not a valid content type",
       },
       required: [true, "Content Type is required"],
