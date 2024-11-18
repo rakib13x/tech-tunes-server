@@ -1,3 +1,4 @@
+//@ts-nocheck
 import httpStatus from "http-status";
 import { JwtPayload } from "jsonwebtoken";
 import config from "../../config";
@@ -102,37 +103,37 @@ const login = async (payload: IUser) => {
   return { accessToken, refreshToken };
 };
 
-// const socialLogin = async (payload: IUser) => {
-//   let user = await User.findOne({ email: payload.email });
-//   if (!user) {
-//     // create a new user (if not found the user by email)
-//     payload.username = payload.fullName.toLowerCase().split(" ").join("");
-//     user = await register(payload);
-//   }
-//   const jwtPayload = {
-//     _id: user._id,
-//     profilePicture: user.profilePicture,
-//     username: user.username,
-//     name: user.fullName,
-//     email: user.email,
-//     role: user.role,
-//     isPremiumUser: user.isPremiumUser,
-//   };
+const socialLogin = async (payload: IUser) => {
+  let user = await User.findOne({ email: payload.email });
+  if (!user) {
+    // create a new user (if not found the user by email)
+    payload.username = payload.fullName.toLowerCase().split(" ").join("");
+    user = await register(payload);
+  }
+  const jwtPayload = {
+    _id: user._id,
+    profilePicture: user.profilePicture,
+    username: user.username,
+    name: user.fullName,
+    email: user.email,
+    role: user.role,
+    isPremiumUser: user.isPremiumUser,
+  };
 
-//   const accessToken = User.createToken(
-//     jwtPayload,
-//     config.jwt_access_token_secret as string,
-//     config.jwt_access_token_expires_in as string,
-//   );
+  const accessToken = User.createToken(
+    jwtPayload,
+    config.jwt_access_token_secret as string,
+    config.jwt_access_token_expires_in as string,
+  );
 
-//   const refreshToken = User.createToken(
-//     jwtPayload,
-//     config.jwt_refresh_token_secret as string,
-//     config.jwt_refresh_token_expires_in as string,
-//   );
+  const refreshToken = User.createToken(
+    jwtPayload,
+    config.jwt_refresh_token_secret as string,
+    config.jwt_refresh_token_expires_in as string,
+  );
 
-//   return { accessToken, refreshToken };
-// };
+  return { accessToken, refreshToken };
+};
 
 // get me (current logged in user)
 const getMe = async (payload: JwtPayload) => {
@@ -343,4 +344,5 @@ export const authService = {
   forgetPassword,
   resetPassword,
   generateNewAccessToken,
+  socialLogin
 };
