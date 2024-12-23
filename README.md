@@ -5,7 +5,7 @@ This API allows users to create ,edit and delete their post and Admin can see al
 ## Features
 
 - **User Features:**
-  - ** Post:** Users can create ,edit and delete their post.
+  - **Post:** Users can create ,edit and delete their post.
   - **User Authentication:** Secure user authentication using JWT tokens.
   - **User account status:** User can see their total post ,comment and total react to their dashboard.
 
